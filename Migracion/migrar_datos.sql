@@ -159,12 +159,164 @@ FROM BikeStores.sales.staffs
 WHERE store_id = 3;
 GO
 
+-- 8.
+-- MIGRACIÓN DE PEDIDOS
+-- Fragmentación horizontal por sucursal
+-- Fragmentación vertical en operativos y logística
+
+-- SUCURSAL 1
 USE BikeStores_Sucursal1;
 GO
+
+-- Fragmento operativo
+INSERT INTO sales.orders_operativos(order_id, customer_id, order_status, order_date, store_id, staff_id)
+
+SELECT order_id, customer_id, order_status, order_date, store_id, staff_id
+    FROM BikeStores.sales.orders
+    WHERE store_id = 1;
+
+-- Fragmento logístico
+INSERT INTO sales.orders_logistica(order_id, required_date, shipped_date)
+
+SELECT order_id, required_date, shipped_date
+    FROM BikeStores.sales.orders
+    WHERE store_id = 1;
+GO
+
+-- SUCURSAL 2
+USE BikeStores_Sucursal2;
+GO
+
+INSERT INTO sales.orders_operativos(order_id, customer_id, order_status, order_date, store_id, staff_id)
+
+SELECT order_id, customer_id, order_status, order_date, store_id, staff_id
+    FROM BikeStores.sales.orders
+    WHERE store_id = 2;
+
+INSERT INTO sales.orders_logistica(order_id, required_date, shipped_date)
+
+SELECT order_id, required_date, shipped_date
+    FROM BikeStores.sales.orders
+    WHERE store_id = 2;
+GO
+
+-- SUCURSAL 3
+USE BikeStores_Sucursal3;
+GO
+
+INSERT INTO sales.orders_operativos
+    (order_id, customer_id, order_status, order_date, store_id, staff_id)
+
+SELECT order_id, customer_id, order_status, order_date, store_id, staff_id
+    FROM BikeStores.sales.orders
+    WHERE store_id = 3;
+
+INSERT INTO sales.orders_logistica(order_id, required_date, shipped_date)
+
+SELECT order_id, required_date, shipped_date
+    FROM BikeStores.sales.orders
+    WHERE store_id = 3;
+GO
+
+-- 9.
+-- MIGRACIÓN DE DETALLES DE PEDIDOS
+-- Fragmentación horizontal por sucursal
+
+-- SUCURSAL 1
+USE BikeStores_Sucursal1;
+GO
+
+INSERT INTO sales.order_items(order_id, item_id, product_id, quantity, list_price, discount)
+
 SELECT
-    (SELECT COUNT(*) FROM sales.customers_identidad)
-        AS clientes_identidad,
-    (SELECT COUNT(*) FROM sales.customers_contacto)
-        AS clientes_contacto,
-    (SELECT COUNT(*) FROM sales.staffs)
-        AS empleados;
+     oi.order_id,
+     oi.item_id,
+     oi.product_id,
+     oi.quantity,
+     oi.list_price,
+     oi.discount
+    FROM BikeStores.sales.order_items oi
+    INNER JOIN BikeStores.sales.orders o
+        ON oi.order_id = o.order_id
+    WHERE o.store_id = 1;
+GO
+
+
+-- SUCURSAL 2
+USE BikeStores_Sucursal2;
+GO
+
+INSERT INTO sales.order_items(order_id, item_id, product_id, quantity, list_price, discount)
+
+SELECT
+     oi.order_id,
+     oi.item_id,
+     oi.product_id,
+     oi.quantity,
+     oi.list_price,
+     oi.discount
+    FROM BikeStores.sales.order_items oi
+    INNER JOIN BikeStores.sales.orders o
+        ON oi.order_id = o.order_id
+    WHERE o.store_id = 2;
+GO
+
+
+-- SUCURSAL 3
+USE BikeStores_Sucursal3;
+GO
+
+INSERT INTO sales.order_items(order_id, item_id, product_id, quantity, list_price, discount)
+
+SELECT
+     oi.order_id,
+     oi.item_id,
+     oi.product_id,
+     oi.quantity,
+     oi.list_price,
+     oi.discount
+    FROM BikeStores.sales.order_items oi
+    INNER JOIN BikeStores.sales.orders o
+        ON oi.order_id = o.order_id
+    WHERE o.store_id = 3;
+GO
+
+
+-- 10.
+-- MIGRACIÓN DE INVENTARIO
+-- Fragmentación horizontal por sucursal
+
+-- SUCURSAL 1
+USE BikeStores_Sucursal1;
+GO
+
+INSERT INTO production.stocks(store_id, product_id, quantity)
+
+SELECT store_id, product_id, quantity
+    FROM BikeStores.production.stocks
+    WHERE store_id = 1;
+GO
+
+
+-- SUCURSAL 2
+USE BikeStores_Sucursal2;
+GO
+
+INSERT INTO production.stocks(store_id, product_id, quantity)
+
+SELECT store_id, product_id, quantity
+    FROM BikeStores.production.stocks
+    WHERE store_id = 2;
+GO
+
+
+-- SUCURSAL 3
+USE BikeStores_Sucursal3;
+GO
+
+INSERT INTO production.stocks(store_id, product_id, quantity)
+
+SELECT store_id, product_id, quantity
+    FROM BikeStores.production.stocks
+    WHERE store_id = 3;
+GO
