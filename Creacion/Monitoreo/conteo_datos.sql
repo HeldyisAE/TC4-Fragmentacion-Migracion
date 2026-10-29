@@ -1,6 +1,7 @@
 USE BikeStores;
 GO
 
+--CANTIDAD DE DATOS POR TABLA
 SELECT 'categories' AS tabla, COUNT(*) AS registros
 FROM production.categories
 
@@ -43,3 +44,8 @@ UNION ALL
 
 SELECT 'stocks', COUNT(*)
 FROM production.stocks;
+
+--SUCURSALES
+SELECT store_id, store_name
+    FROM sales.stores
+    ORDER BY store_id;
